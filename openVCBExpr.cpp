@@ -9,7 +9,7 @@
 
 namespace openVCB
 {
-using SymMap = std::map<std::string, int64_t>;
+using SymMap = std::map<std::string, uint32_t>;
 
 enum types : uint8_t { DELIMITER = 1, VARIABLE };
 
@@ -32,7 +32,7 @@ class parser {
       void get_token();
 
       template <size_t SrcSize>
-            requires(sizeof errormsg >= SrcSize)
+          requires(sizeof errormsg >= SrcSize)
       __inline constexpr void setError(char const (&src)[SrcSize])
       {
             ::memcpy(errormsg, src, SrcSize);
@@ -192,8 +192,7 @@ void
 parser::eval_expr7(int64_t &result)
 {
       char op = 0;
-      if (tok_type == DELIMITER && (*token == '!' || *token == '~' || *token == '+' || *
-                                    token == '-')) {
+      if (tok_type == DELIMITER && (*token == '!' || *token == '~' || *token == '+' || * token == '-')) {
             op = *token;
             get_token();
       }
@@ -227,7 +226,7 @@ parser::eval_expr8(int64_t &result)
             if (isdigit(*token)) {
                   int const id = tolower(*(token + 1));
                   if (id == 'x') {
-                        char *ptr = token + 2;
+                        char const *ptr = token + 2;
                         result    = 0;
                         while (*ptr) {
                               int val = tolower(*ptr++);
@@ -237,7 +236,7 @@ parser::eval_expr8(int64_t &result)
                               }
                         }
                   } else if (id == 'b') {
-                        char *ptr = token + 2;
+                        char const *ptr = token + 2;
                         result    = 0;
                         while (*ptr) {
                               if (*ptr != '_')
@@ -253,8 +252,7 @@ parser::eval_expr8(int64_t &result)
                         if (endp && *endp != '\0')
                               formatError("Invalid character \"%c\" in number", *endp);
                         else if (result > UINT32_MAX)
-                              formatError("Number \"%jd\" is too large to fit in 32-bits",
-                                          result);
+                              formatError("Number \"%" PRId64 "\" is too large to fit in 32-bits", result);
                         else if (e == ERANGE)
                               setError("Number is out of range");
                   }
@@ -326,7 +324,7 @@ parser::formatError(PRINTF_FORMAT_STRING fmt, ...)
       return ret;
 }
 
-int64_t
+uint32_t
 evalExpr(char const *expr, SymMap &symbols, char *errp, size_t const errSize)
 {
       parser        p(symbols);
@@ -339,6 +337,6 @@ evalExpr(char const *expr, SymMap &symbols, char *errp, size_t const errSize)
                   ::fprintf(stderr, "error: \"%s\" %s\n", expr, p.getError());
       }
 
-      return res;
+      return static_cast<uint32_t>(res);
 }
 } // namespace openVCB

@@ -58,11 +58,10 @@ Project::tick(int32_t const numTicks, int64_t const maxEvents)
                         if (!states[gid].visited)
                               updateQ[0][qSize++] = gid;
 
-            if (!realtimeClock.GIDs.empty()) [[unlikely]]
-                  if (realtimeClock.tick()) [[unlikely]]
-                        for (auto const gid : realtimeClock.GIDs)
-                              if (!states[gid].visited)
-                                    updateQ[0][qSize++] = gid;
+            if (!realtimeClock.GIDs.empty() && realtimeClock.tick()) [[unlikely]]
+                  for (auto const gid : realtimeClock.GIDs)
+                        if (!states[gid].visited)
+                              updateQ[0][qSize++] = gid;
 
             for (int traceUpdate = 0; traceUpdate < 2; ++traceUpdate) {
                   // We update twice per tick
@@ -87,37 +86,10 @@ Project::tick(int32_t const numTicks, int64_t const maxEvents)
 
                   // Main update loop
                   for (uint i = 0; i < numEvents; ++i) {
-                        int   const gid        = updateQ[0][i];
-                        auto  const curInk     = states[gid];
-                        bool  const lastActive = IsOn(curInk.logic);
-                        int   const lastInputs = lastActiveInputs[i];
-                        bool        nextActive;
-
-                        // NOLINTNEXTLINE(clang-diagnostic-switch-enum)
-                        switch (SetOff(curInk.logic)) {
-                        case Logic::NonZeroOff: nextActive = lastInputs != 0;   break;
-                        case Logic::ZeroOff:    nextActive = lastInputs == 0;   break;
-                        case Logic::XorOff:     nextActive = lastInputs & 1;    break;
-                        case Logic::XnorOff:    nextActive = !(lastInputs & 1); break;
-                        default:                nextActive = false;             break;
-                        case Logic::LatchOff:
-                              nextActive = lastActive ^ (lastInputs & 1);
-                              break;
-                        case Logic::ClockOff:
-                              nextActive = tickClock.is_zero() ? !lastActive : lastActive;
-                              break;
-                        case Logic::TimerOff:
-                              nextActive = realtimeClock.is_zero() ? !lastActive : lastActive;
-                              break;
-                        case Logic::RandomOff:
-                              nextActive = lastInputs > 0 && (lastActive || GetRandomBit());
-                              break;
-                        case Logic::BreakpointOff:
-                              nextActive = lastInputs > 0;
-                              if (nextActive)
-                                    res.breakpoint = true;
-                              break;
-                        }
+                        int  const gid        = updateQ[0][i];
+                        auto const curInk     = states[gid];
+                        bool const lastActive = IsOn(curInk.logic);
+                        bool const nextActive = resolve_state(res, curInk, lastActive, lastActiveInputs[i]);
 
                         // Short circuit if the state didnt change
                         if (lastActive == nextActive)
@@ -160,6 +132,34 @@ Project::tick(int32_t const numTicks, int64_t const maxEvents)
 }
 
 
+[[__gnu__::__hot__]] OVCB_INLINE bool
+Project::resolve_state(SimulationResult &res,
+                       InkState const    curInk,
+                       bool const        lastActive,
+                       int const         lastInputs)
+{
+      // NOLINTNEXTLINE(clang-diagnostic-switch-enum)
+      switch (SetOff(curInk.logic)) {
+      case Logic::NonZeroOff: return lastInputs != 0;
+      case Logic::ZeroOff:    return lastInputs == 0;
+      case Logic::XorOff:     return lastInputs & 1;
+      case Logic::XnorOff:    return !(lastInputs & 1);
+      case Logic::LatchOff:   return lastActive ^ (lastInputs & 1);
+      case Logic::RandomOff:  return lastInputs > 0 && (lastActive || GetRandomBit());
+      case Logic::ClockOff:   return tickClock.is_zero()     ? !lastActive : lastActive;
+      case Logic::TimerOff:   return realtimeClock.is_zero() ? !lastActive : lastActive;
+      case Logic::BreakpointOff: {
+            bool const ret = lastInputs > 0;
+            if (ret)
+                  res.breakpoint = true;
+            return ret;
+      }
+      default:
+            return false;
+      }
+}
+
+
 [[__gnu__::__hot__]]
 OVCB_CONSTEXPR bool
 Project::tryEmit(int32_t const gid)
@@ -180,7 +180,7 @@ Project::handleWordVMemTick()
       // Get current address
       uint32_t addr = 0;
       for (int k = 0; k < vmAddr.numBits; ++k)
-            addr |= static_cast<uint>(IsOn(states[vmAddr.gids[k]].logic)) << k;
+            addr |= static_cast<uint32_t>(IsOn(states[vmAddr.gids[k]].logic)) << k;
 
       if (addr != lastVMemAddr) {
             // Load address
@@ -210,7 +210,7 @@ Project::handleWordVMemTick()
             // Write address
             uint32_t data = 0;
             for (int k = 0; k < vmData.numBits; ++k)
-                  data |= static_cast<uint>(IsOn(states[vmData.gids[k]].logic)) << k;
+                  data |= static_cast<uint32_t>(IsOn(states[vmData.gids[k]].logic)) << k;
 
             vmem.i[addr] = data;
       }
@@ -224,14 +224,15 @@ Project::handleByteVMemTick()
       // Get current address
       uint32_t addr = 0;
       for (int k = 0; k < vmAddr.numBits; ++k)
-            addr |= static_cast<uint>(IsOn(states[vmAddr.gids[k]].logic)) << k;
+            addr |= static_cast<uint32_t>(IsOn(states[vmAddr.gids[k]].logic)) << k;
 
       if (addr != lastVMemAddr) {
             // Load address
             uint32_t data = 0;
             lastVMemAddr  = addr;
 
-# ifdef USE_GNU_INLINE_ASM
+# if 1
+#  ifdef USE_GNU_INLINE_ASM
             // We can use Intel syntax. Hooray.
             __asm__ __volatile__ (
                   "mov	%[data], [%[vmem] + %q[addr]]"
@@ -239,9 +240,12 @@ Project::handleByteVMemTick()
                   : [vmem] "r" (vmem.b), [addr] "r" (addr)
                   :
             );
-# else
+#  else
             data = ::openVCB_evil_assembly_bit_manipulation_routine_getVMem(vmem.b, addr);
-# endif
+#  endif
+# else
+            memcpy(&data, vmem.b + addr, sizeof data);
+#endif
 
             // Turn on those latches
             for (int k = 0; k < vmData.numBits; ++k) {
@@ -264,9 +268,10 @@ Project::handleByteVMemTick()
             // Write address
             uint32_t data = 0;
             for (int k = 0; k < vmData.numBits; ++k)
-                  data |= static_cast<uint>(IsOn(states[vmData.gids[k]].logic)) << k;
+                  data |= static_cast<uint32_t>(IsOn(states[vmData.gids[k]].logic)) << k;
 
-# ifdef USE_GNU_INLINE_ASM
+# if 1
+#  ifdef USE_GNU_INLINE_ASM
             __asm__ __volatile__ (
                   "shrx	eax, [%[vmem] + %q[addr]], %[numBits]" "\n\t"
                   "shlx	rax, rax, %q[numBits]"                 "\n\t"
@@ -277,8 +282,13 @@ Project::handleByteVMemTick()
                     [data] "r" (data),   [numBits] "r" (vmData.numBits)
                   : "cc", "rax"
             );
-# else
+#  else
             openVCB_evil_assembly_bit_manipulation_routine_setVMem(vmem.b, addr, data, vmData.numBits);
+#  endif
+# else
+            data = data >> vmData.numBits;
+            data = static_cast<uint32_t>(static_cast<uint64_t>(data) << vmData.numBits);
+            memcpy(vmem.b + addr, &data, sizeof data);
 # endif
       }
 }

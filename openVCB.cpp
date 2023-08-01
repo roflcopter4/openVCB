@@ -45,7 +45,7 @@ Project::Project(int64_t const seed, bool const vmemIsBytes)
     : vmemIsBytes(vmemIsBytes)
 {
       if (seed > 0 && seed <= UINT32_MAX)
-            random = RandomBitProvider{static_cast<uint32_t>(seed & INT64_C(0xFFFF'FFFF))};
+            random = RandomBitProvider{static_cast<uint32_t>(seed)};
 }
 
 Project::~Project()
@@ -82,7 +82,7 @@ Project::sample(glm::ivec2 const pos) const
       if (idx == -1)
             return {Ink::None, -1};
 
-      type = (type & 0x7f) | static_cast<unsigned>(states[idx].logic & 0x80);
+      type = (type & 0x7F) | (states[idx].logic & 0x80);
       return {type, idx};
 }
 

@@ -128,14 +128,14 @@ enum class Logic : uint8_t {
       _numTypes,
       _ink_on = 0x80,
 
-      NonZero  = NonZeroOff  | _ink_on,
-      Zero     = ZeroOff     | _ink_on,
-      Xor      = XorOff      | _ink_on,
-      Xnor     = XnorOff     | _ink_on,
-      Latch    = LatchOff    | _ink_on,
-      Clock    = ClockOff    | _ink_on,
-      Timer    = TimerOff    | _ink_on,
-      Random   = RandomOff   | _ink_on,
+      NonZero    = NonZeroOff    | _ink_on,
+      Zero       = ZeroOff       | _ink_on,
+      Xor        = XorOff        | _ink_on,
+      Xnor       = XnorOff       | _ink_on,
+      Latch      = LatchOff      | _ink_on,
+      Clock      = ClockOff      | _ink_on,
+      Timer      = TimerOff      | _ink_on,
+      Random     = RandomOff     | _ink_on,
       Breakpoint = BreakpointOff | _ink_on,
 };
 
@@ -203,8 +203,8 @@ class Project
     public:
       // This remains null if VMem is not actually used.
       VMemWrapper vmem         = nullptr;
-      uint64_t    vmemSize     = 0;
-      uint64_t    lastVMemAddr = 0;
+      uint32_t    vmemSize     = 0;
+      uint32_t    lastVMemAddr = 0;
 
       LatchInterface vmAddr    = {{}, {}, {}, -1, {}};
       LatchInterface vmData    = {{}, {}, {}, -1, {}};
@@ -242,9 +242,9 @@ class Project
       Ink *stateInks = nullptr;
 
       // Map of symbols during assembleVmem().
-      std::map<std::string, int64_t> assemblySymbols;
-      std::map<int64_t, int64_t>     lineNumbers;
-      std::vector<InstrumentBuffer>  instrumentBuffers;
+      std::map<std::string, uint32_t> assemblySymbols;
+      std::map<uint32_t, uint32_t>    lineNumbers;
+      std::vector<InstrumentBuffer>   instrumentBuffers;
 
       uint64_t tickNum = 0;
 
@@ -317,6 +317,9 @@ class Project
       //---------------------------------------------------------------------------------
 
     private:
+      [[__gnu__::__hot__]]
+      ND OVCB_INLINE bool resolve_state(SimulationResult &res, InkState curInk, bool lastActive, int lastInputs);
+
       [[__gnu__::__hot__]]
       OVCB_CONSTEXPR bool tryEmit(int32_t gid);
 

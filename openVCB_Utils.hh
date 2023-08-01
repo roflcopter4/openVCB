@@ -241,8 +241,10 @@
 #  define ATTRIBUTE_PRINTF(fst, snd) [[gnu::format(printf, fst, snd)]]
 # elif defined __clang__ || !defined __GNUC__
 #  define ATTRIBUTE_PRINTF(fst, snd) [[__gnu__::__format__(printf, fst, snd)]]
-# else
+# elif defined __GNUC__
 #  define ATTRIBUTE_PRINTF(fst, snd) [[__gnu__::__format__(gnu_printf, fst, snd)]]
+# else
+#  define ATTRIBUTE_PRINTF(fst, snd)
 # endif
 #endif
 
@@ -287,14 +289,43 @@ typedef unsigned char uchar;
 typedef signed char   schar;
 
 #if __WORDSIZE == 64
-#  define SIZE_C(n) UINT64_C(n)
+#  define SIZE_C(n)  UINT64_C(n)
+#  define SSIZE_C(n) INT64_C(n)
 typedef int64_t ssize_t;
 #elif __WORDSIZE == 32
-#  define SIZE_C(n) UINT32_C(n)
+#  define SIZE_C(n)  UINT32_C(n)
+#  define SSIZE_C(n) INT32_C(n)
 typedef int32_t ssize_t;
 #else
-#  define SIZE_C(n) UINT16_C(n)
+#  define SIZE_C(n)  UINT16_C(n)
+#  define SSIZE_C(n) INT16_C(n)
 typedef int16_t ssize_t;
+#endif
+
+#ifdef __cplusplus
+# define DELETE_COPY_CTORS(t)                                                      \
+      t(t const &)                = delete; /*NOLINT(bugprone-macro-parentheses)*/ \
+      t &operator=(t const &)     = delete  /*NOLINT(bugprone-macro-parentheses)*/
+
+# define DELETE_MOVE_CTORS(t)                                                      \
+      t(t &&) noexcept            = delete; /*NOLINT(bugprone-macro-parentheses)*/ \
+      t &operator=(t &&) noexcept = delete  /*NOLINT(bugprone-macro-parentheses)*/
+
+# define DEFAULT_COPY_CTORS(t)                                                      \
+      t(t const &)                = default; /*NOLINT(bugprone-macro-parentheses)*/ \
+      t &operator=(t const &)     = default  /*NOLINT(bugprone-macro-parentheses)*/
+
+# define DEFAULT_MOVE_CTORS(t)                                                      \
+      t(t &&) noexcept            = default; /*NOLINT(bugprone-macro-parentheses)*/ \
+      t &operator=(t &&) noexcept = default  /*NOLINT(bugprone-macro-parentheses)*/
+
+# define DELETE_ALL_CTORS(t) \
+      DELETE_COPY_CTORS(t);  \
+      DELETE_MOVE_CTORS(t)
+
+#define DEFAULT_ALL_CTORS(t) \
+      DEFAULT_COPY_CTORS(t); \
+      DEFAULT_MOVE_CTORS(t)
 #endif
 
 /*======================================================================================*/
@@ -362,7 +393,10 @@ NODISCARD constexpr uint32_t bswap_32(uint32_t const val) noexcept
 # ifndef NO_bswap_SUPPORT
       if (::std::is_constant_evaluated())
 # endif
-            return (val << 24) | ((val << 8) & 0x00FF'0000) | ((val >> 8) & 0x0000'FF00) | (val >> 24);
+            return ((val << 030) & UINT32_C(0xFF00'0000)) |
+                   ((val << 010) & UINT32_C(0x00FF'0000)) |
+                   ((val >> 010) & UINT32_C(0x0000'FF00)) |
+                   ((val >> 030) & UINT32_C(0x0000'00FF));
 # ifndef NO_bswap_SUPPORT
       else
             return bswap_native_32(val);
@@ -373,14 +407,14 @@ NODISCARD constexpr uint64_t bswap_64(uint64_t const val) noexcept {
 # ifndef NO_bswap_SUPPORT
       if (::std::is_constant_evaluated())
 # endif
-            return ((val << 56) & 0xFF00'0000'0000'0000) |
-                   ((val << 40) & 0x00FF'0000'0000'0000) |
-                   ((val << 24) & 0x0000'FF00'0000'0000) |
-                   ((val <<  8) & 0x0000'00FF'0000'0000) |
-                   ((val >>  8) & 0x0000'0000'FF00'0000) |
-                   ((val >> 24) & 0x0000'0000'00FF'0000) |
-                   ((val >> 40) & 0x0000'0000'0000'FF00) |
-                   ((val >> 56) & 0x0000'0000'0000'00FF);
+            return ((val << 070) & UINT64_C(0xFF00'0000'0000'0000)) |
+                   ((val << 050) & UINT64_C(0x00FF'0000'0000'0000)) |
+                   ((val << 030) & UINT64_C(0x0000'FF00'0000'0000)) |
+                   ((val << 010) & UINT64_C(0x0000'00FF'0000'0000)) |
+                   ((val >> 010) & UINT64_C(0x0000'0000'FF00'0000)) |
+                   ((val >> 030) & UINT64_C(0x0000'0000'00FF'0000)) |
+                   ((val >> 050) & UINT64_C(0x0000'0000'0000'FF00)) |
+                   ((val >> 070) & UINT64_C(0x0000'0000'0000'00FF));
 # ifndef NO_bswap_SUPPORT
       else
             return bswap_native_64(val);
@@ -389,6 +423,10 @@ NODISCARD constexpr uint64_t bswap_64(uint64_t const val) noexcept {
 
 template <typename T>
 concept Swappable = ::std::is_integral_v<T> && sizeof(T) <= 8;
+
+#ifdef NO_bswap_SUPPORT
+# undef NO_bswap_SUPPORT
+#endif
 
 } // namespace impl
 
