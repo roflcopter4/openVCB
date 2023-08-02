@@ -687,32 +687,6 @@
     <ClInclude Include="openVCB_Utils.hh" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="bitroutines_unix.asm">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='oneAPIRelease|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='IntelShipping|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ClangRelease|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='oneAPIRelease|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='IntelShipping|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ClangRelease|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </MASM>
-    <MASM Include="bitroutines_win32.asm">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='oneAPIRelease|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='IntelShipping|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ClangRelease|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-      <PreserveIdentifierCase Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">1</PreserveIdentifierCase>
-      <PreserveIdentifierCase Condition="'$(Configuration)|$(Platform)'=='oneAPIRelease|x64'">1</PreserveIdentifierCase>
-      <PreserveIdentifierCase Condition="'$(Configuration)|$(Platform)'=='IntelShipping|x64'">1</PreserveIdentifierCase>
-      <PreserveIdentifierCase Condition="'$(Configuration)|$(Platform)'=='ClangRelease|x64'">1</PreserveIdentifierCase>
-      <PreserveIdentifierCase Condition="'$(Configuration)|$(Platform)'=='Release|x64'">1</PreserveIdentifierCase>
-    </MASM>
-  </ItemGroup>
-  <ItemGroup>
     <Manifest Include="MyManifest.manifest" />
   </ItemGroup>
   <ItemGroup>

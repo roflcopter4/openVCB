@@ -62,7 +62,7 @@ simFunc()
                   // Use timings to estimate max possible tps
                   desiredTicks = desiredTicks - res.numTicksProcessed;
                   maxTPS       = res.numTicksProcessed / duration_cast<duration<double>>(t2 - t1).count();
-                  if (isfinite(maxTPS))
+                  if (std::isfinite(maxTPS))
                         tpsEst = glm::clamp(glm::mix(maxTPS, tpsEst, 0.95), 1.0, 1e8);
 
                   if (res.breakpoint) {

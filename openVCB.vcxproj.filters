@@ -91,14 +91,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="bitroutines_win32.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
-    <MASM Include="bitroutines_unix.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
-  </ItemGroup>
-  <ItemGroup>
     <Manifest Include="MyManifest.manifest" />
   </ItemGroup>
   <ItemGroup>

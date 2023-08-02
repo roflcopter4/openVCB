@@ -5,25 +5,11 @@
 // ReSharper disable CppTooWideScope
 // ReSharper disable CppTooWideScopeInitStatement
 // ReSharper disable CppUseStructuredBinding
+
 #include "openVCB.h"
 
-#if (defined __INTEL_COMPILER && false)                                   || \
-    (defined __INTEL_LLVM_COMPILER && __INTEL_LLVM_COMPILER >= 20220000L) || \
-    (defined __clang__ && __clang__ >= 12)                                || \
-    (defined __GNUC__  && __GNUC__  >= 10)
-# if !(defined __INTELLISENSE__ || defined __RESHARPER__)
-#  define USE_GNU_INLINE_ASM 1
-# endif
-#endif
-
-
-extern "C" {
-ND uint32_t openVCB_evil_assembly_bit_manipulation_routine_getVMem(uint8_t *vmem, size_t addr);
-   void     openVCB_evil_assembly_bit_manipulation_routine_setVMem(uint8_t *vmem, size_t addr, uint32_t data, int numBits);
-}
-
-
 namespace openVCB {
+/*======================================================================================*/
 
 
 [[__gnu__::__hot__]]
@@ -231,21 +217,7 @@ Project::handleByteVMemTick()
             uint32_t data = 0;
             lastVMemAddr  = addr;
 
-# if 1
-#  ifdef USE_GNU_INLINE_ASM
-            // We can use Intel syntax. Hooray.
-            __asm__ __volatile__ (
-                  "mov	%[data], [%[vmem] + %q[addr]]"
-                  : [data] "=r" (data)
-                  : [vmem] "r" (vmem.b), [addr] "r" (addr)
-                  :
-            );
-#  else
-            data = ::openVCB_evil_assembly_bit_manipulation_routine_getVMem(vmem.b, addr);
-#  endif
-# else
             memcpy(&data, vmem.b + addr, sizeof data);
-#endif
 
             // Turn on those latches
             for (int k = 0; k < vmData.numBits; ++k) {
@@ -259,7 +231,7 @@ Project::handleByteVMemTick()
                         state.visited       = true;
                         updateQ[0][qSize++] = vmData.gids[k];
                   }
-            }
+                  }
 
             // Forcibly ignore further address updates
             for (int k = 0; k < vmAddr.numBits; ++k)
@@ -270,29 +242,16 @@ Project::handleByteVMemTick()
             for (int k = 0; k < vmData.numBits; ++k)
                   data |= static_cast<uint32_t>(IsOn(states[vmData.gids[k]].logic)) << k;
 
-# if 1
-#  ifdef USE_GNU_INLINE_ASM
-            __asm__ __volatile__ (
-                  "shrx	eax, [%[vmem] + %q[addr]], %[numBits]" "\n\t"
-                  "shlx	rax, rax, %q[numBits]"                 "\n\t"
-                  "or	eax, %[data]"                          "\n\t"
-                  "mov	[%[vmem] + %q[addr]], eax"             "\n\t"
-                  :
-                  : [vmem] "r" (vmem.b), [addr] "r" (addr),
-                    [data] "r" (data),   [numBits] "r" (vmData.numBits)
-                  : "cc", "rax"
-            );
-#  else
-            openVCB_evil_assembly_bit_manipulation_routine_setVMem(vmem.b, addr, data, vmData.numBits);
-#  endif
-# else
-            data = data >> vmData.numBits;
-            data = static_cast<uint32_t>(static_cast<uint64_t>(data) << vmData.numBits);
+            uint32_t tmp;
+            memcpy(&tmp, vmem.b + addr, sizeof data);
+            tmp = tmp >> vmData.numBits;
+            tmp = static_cast<uint32_t>(static_cast<uint64_t>(tmp) << vmData.numBits);
+            data |= tmp;
             memcpy(vmem.b + addr, &data, sizeof data);
-# endif
       }
 }
 #endif
 
 
+/*======================================================================================*/
 } // namespace openVCB
