@@ -9,6 +9,7 @@ find_package (glm REQUIRED)
 find_package (ZSTD REQUIRED)
 
 add_definitions(-DMAIN_PACKAGE_NAMESPACE=openVCB)
+include_directories(ZSTD glm tbb)
 
 add_library(openVCB SHARED 
     cSharpExportInterface.cpp
