@@ -206,7 +206,7 @@ union VMemWrapper
       explicit VMemWrapper(uint8_t *ptr) noexcept
           : b(ptr)
       {}
-      VMemWrapper(nullptr_t) noexcept
+      VMemWrapper(std::nullptr_t) noexcept
           : i(nullptr)
       {}
 
