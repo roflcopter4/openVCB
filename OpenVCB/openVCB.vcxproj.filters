@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Gorder">
+      <UniqueIdentifier>{1b811991-dcea-4e2c-8886-6d7b6dfeeb2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rejects">
+      <UniqueIdentifier>{513f8745-9a69-4ef8-945d-5bc496453024}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rejects\Gorder">
+      <UniqueIdentifier>{571d3904-f8c8-4bf3-8263-87c7ff0f978c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="openVCBSim.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="openVCB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="openVCBExpr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="openVCBPreprocessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="openVCBReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="openVCBBlueprint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="openVCBAssembler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gorder\Util.cpp">
+      <Filter>Source Files\Rejects\Gorder</Filter>
+    </ClCompile>
+    <ClCompile Include="gorder\UnitHeap.cpp">
+      <Filter>Source Files\Rejects\Gorder</Filter>
+    </ClCompile>
+    <ClCompile Include="gorder\Graph.cpp">
+      <Filter>Source Files\Rejects\Gorder</Filter>
+    </ClCompile>
+    <ClCompile Include="cSharpExportInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\Rejects</Filter>
+    </ClCompile>
+    <ClCompile Include="openVCBMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="openVCB_Data.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gorder\Util.h">
+      <Filter>Header Files\Gorder</Filter>
+    </ClInclude>
+    <ClInclude Include="gorder\Graph.h">
+      <Filter>Header Files\Gorder</Filter>
+    </ClInclude>
+    <ClInclude Include="gorder\UnitHeap.h">
+      <Filter>Header Files\Gorder</Filter>
+    </ClInclude>
+    <ClInclude Include="openVCB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="openVCB_Expr.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="openVCB_Helpers.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="openVCB_Utils.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="bitroutines_win32.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="bitroutines_unix.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="MyManifest.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="cpp.hint" />
+  </ItemGroup>
+</Project>

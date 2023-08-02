@@ -289,23 +289,17 @@ typedef unsigned char uchar;
 typedef signed char   schar;
 
 #if __WORDSIZE == 64
-# define SIZE_C(n)  UINT64_C(n)
-# define SSIZE_C(n) INT64_C(n)
-#  ifdef _WIN32
+#  define SIZE_C(n)  UINT64_C(n)
+#  define SSIZE_C(n) INT64_C(n)
 typedef int64_t ssize_t;
-#  endif
 #elif __WORDSIZE == 32
-# define SIZE_C(n)  UINT32_C(n)
-# define SSIZE_C(n) INT32_C(n)
-#  ifdef _WIN32
+#  define SIZE_C(n)  UINT32_C(n)
+#  define SSIZE_C(n) INT32_C(n)
 typedef int32_t ssize_t;
-#  endif
 #else
-# define SIZE_C(n)  UINT16_C(n)
-# define SSIZE_C(n) INT16_C(n)
-#  ifdef _WIN32
+#  define SIZE_C(n)  UINT16_C(n)
+#  define SSIZE_C(n) INT16_C(n)
 typedef int16_t ssize_t;
-#  endif
 #endif
 
 #ifdef __cplusplus

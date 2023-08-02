@@ -1,0 +1,3 @@
+D:/ass/VisualStudio/Repos/open_FUCK/build/CMakeFiles/openVCB.dir
+D:/ass/VisualStudio/Repos/open_FUCK/build/CMakeFiles/edit_cache.dir
+D:/ass/VisualStudio/Repos/open_FUCK/build/CMakeFiles/rebuild_cache.dir

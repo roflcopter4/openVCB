@@ -138,6 +138,7 @@ processData(std::vector<uint8_t> const &logicData,
 bool
 Project::processLogicData(std::vector<uint8_t> const &logicData, int32_t const headerSize)
 {
+      __debugbreak();
       uint64_t imSize;
       if (processData(logicData, headerSize, width, height, originalImage, imSize)) {
             image = new InkPixel[imSize];
@@ -299,6 +300,7 @@ Project::readFromVCB(std::string const &filePath)
       vmData.size.x   = vmemArr[12];
       vmData.size.y   = vmemArr[13];
 
+      __debugbreak();
       if (vmemFlag) {
             vmemSize = UINT64_C(1) << vmAddr.numBits;
 #ifdef OVCB_BYTE_ORIENTED_VMEM
