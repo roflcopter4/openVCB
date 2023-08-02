@@ -5,14 +5,9 @@
 #include "openVCB.h"
 
 #if defined _MSC_VER
-#  define OVCB_CONSTEXPR constexpr __forceinline
 #  if !(defined __GNUC__ || defined __clang__ || defined __INTEL_COMPILER || defined __INTEL_LLVM_COMPILER)
 #    pragma warning(disable: 5030)  // Unrecognized attribute
 #  endif
-#elif defined __GNUC__ || defined __clang__
-#  define OVCB_INLINE __attribute__((__always_inline__)) constexpr inline
-#else
-#  define OVCB_INLINE constexpr inline
 #endif
 
 
