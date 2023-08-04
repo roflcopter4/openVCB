@@ -45,12 +45,12 @@ simFunc()
             auto curTime = clock::now();
             auto diff    = duration_cast<duration<double>>(curTime - lastTime).count();
             lastTime     = curTime;
-            desiredTicks = glm::min(desiredTicks + diff * double(targetTPS), tpsEst * MIN_DT);
+            desiredTicks = glm::min(desiredTicks + diff * static_cast<double>(targetTPS), tpsEst * MIN_DT);
 
             // Find max tick amount we can do
             if (desiredTicks >= 1.0) {
-                  double     maxTickAmount = glm::max(tpsEst * TARGET_DT, 1.0);
-                  auto const tickAmount    = int32_t(glm::min(desiredTicks, maxTickAmount));
+                  double const maxTickAmount = glm::max(tpsEst * TARGET_DT, 1.0);
+                  auto const   tickAmount    = static_cast<int32_t>(glm::min(desiredTicks, maxTickAmount));
 
                   // Aquire lock, simulate, and time
                   simLock.lock();
@@ -76,7 +76,7 @@ simFunc()
             curTime = clock::now();
             diff    = duration_cast<duration<double>>(curTime - lastTime).count();
             if (auto const ms = 1000 * (TARGET_DT - diff); ms > 1.05)
-                  std::this_thread::sleep_for(milliseconds{uint64_t(ms)});
+                  std::this_thread::sleep_for(milliseconds(static_cast<int64_t>(ms)));
       }
 }
 

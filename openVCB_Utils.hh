@@ -387,7 +387,7 @@ NODISCARD constexpr uint16_t bswap_16(uint16_t const val) noexcept {
 # ifndef NO_bswap_SUPPORT
       if (::std::is_constant_evaluated())
 # endif
-            return static_cast<unsigned short>((val << 8) | (val >> 8));
+            return static_cast<uint16_t>((val << 8) | (val >> 8));
 # ifndef NO_bswap_SUPPORT
       else
             return bswap_native_16(val);

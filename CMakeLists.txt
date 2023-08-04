@@ -8,9 +8,9 @@ find_package (TBB REQUIRED)
 find_package (glm REQUIRED)
 find_package (ZSTD REQUIRED)
 
-add_definitions(-DMAIN_PACKAGE_NAMESPACE=openVCB)
+add_definitions (-DMAIN_PACKAGE_NAMESPACE=openVCB)
 
-add_library(openVCB SHARED 
+add_library (openVCB SHARED 
     cSharpExportInterface.cpp
     openVCB.cpp
     openVCBAssembler.cpp
@@ -21,25 +21,24 @@ add_library(openVCB SHARED
     openVCBReader.cpp
     openVCBSim.cpp
 
-    macros.h
     openVCB.h
     openVCBExpr.h
     openVCB_Data.hh
     openVCB_Expr.hh
     openVCB_Helpers.hh
     openVCB_Utils.hh
+    macros.h
 )
 
-message("${ZSTD_INCLUDE_DIR}")
-
-target_include_directories(openVCB PRIVATE
+target_include_directories (openVCB PRIVATE
     "${GLM_INCLUDE_DIRS}"
 )
 
-target_link_libraries(openVCB
+target_link_libraries (openVCB
     zstd::libzstd_shared
     TBB::tbb
-    glm
 )
 
-set_target_properties(openVCB PROPERTIES PREFIX "")
+IF (WIN32)
+    set_target_properties (openVCB PROPERTIES PREFIX "")
+ENDIF ()

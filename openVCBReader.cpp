@@ -263,7 +263,7 @@ Project::readFromVCB(std::string const &filePath)
             }
       }
 
-      for (int i = 0; i < std::min((int)vecPalette.size(), 16); ++i)
+      for (int i = 0; i < glm::min(static_cast<int>(vecPalette.size()), 16); ++i)
             ledPalette[i] = vecPalette[i];
 
       split(godotObj, "\"vmem_settings\": [ ", pos);
@@ -283,7 +283,7 @@ Project::readFromVCB(std::string const &filePath)
       }
 
       // Set the vmem settings
-      vmAddr.numBits  = std::clamp(vmemArr[0], 0, 32);
+      vmAddr.numBits  = glm::clamp(vmemArr[0], 0, 32);
       vmAddr.pos.x    = vmemArr[1];
       vmAddr.pos.y    = vmemArr[2];
       vmAddr.stride.x = -vmemArr[3];
@@ -291,7 +291,7 @@ Project::readFromVCB(std::string const &filePath)
       vmAddr.size.x   = vmemArr[5];
       vmAddr.size.y   = vmemArr[6];
 
-      vmData.numBits  = std::clamp(vmemArr[7], 0, 32);
+      vmData.numBits  = glm::clamp(vmemArr[7], 0, 32);
       vmData.pos.x    = vmemArr[8];
       vmData.pos.y    = vmemArr[9];
       vmData.stride.x = -vmemArr[10];

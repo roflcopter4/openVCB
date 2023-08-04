@@ -6,7 +6,7 @@
 #define C8kWpReCttGxHsWkLLl1RDjAweb3HDua
 
 // Toggle experimental byte addressed VMem.
-#define OVCB_BYTE_ORIENTED_VMEM
+//#define OVCB_BYTE_ORIENTED_VMEM
 
 #include "openVCB_Utils.hh"
 #include "openVCB_Data.hh"
