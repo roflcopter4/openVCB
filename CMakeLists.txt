@@ -4,13 +4,14 @@ project (openVCB LANGUAGES CXX VERSION 1.0.0)
 set (CMAKE_CXX_STANDARD 20)
 set (CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-find_package (TBB REQUIRED)
+#find_package (TBB REQUIRED)
 find_package (glm REQUIRED)
 find_package (ZSTD REQUIRED)
 
 add_definitions (-DMAIN_PACKAGE_NAMESPACE=openVCB)
 
 add_library (openVCB SHARED 
+#add_executable (openVCB
     cSharpExportInterface.cpp
     openVCB.cpp
     openVCBAssembler.cpp
@@ -36,7 +37,7 @@ target_include_directories (openVCB PRIVATE
 
 target_link_libraries (openVCB
     zstd::libzstd_shared
-    TBB::tbb
+    #TBB::tbb
 )
 
 IF (WIN32)

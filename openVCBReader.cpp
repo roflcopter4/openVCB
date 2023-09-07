@@ -180,11 +180,9 @@ void
 Project::readFromVCB(std::string const &filePath)
 {
       std::ifstream stream(filePath);
-      std::string   godotObj;
-
-      while (!stream.eof())
-            stream >> godotObj;
-
+      std::stringstream ss;
+      ss << stream.rdbuf();
+      std::string godotObj = ss.str();
       stream.close();
 
       if (godotObj.empty()) {
@@ -193,11 +191,14 @@ Project::readFromVCB(std::string const &filePath)
             ::exit(1); // NOLINT(concurrency-mt-unsafe)
       }
 
+      printf("%zu\n", godotObj.size());
+
       // split out assembly
       int pos = 0;
       split(godotObj, R"("assembly": ")", pos);
       assembly = split(godotObj, "\",", pos);
-      // printf("Loaded assembly %i chars\n", assembly.size());
+      printf("Loaded assembly %zu chars\n", assembly.size());
+      fflush(stdout);
 
       // if VMem is enabled
       split(godotObj, "\"is_vmem_enabled\": ", pos);
@@ -317,8 +318,7 @@ Project::readFromVCB(std::string const &filePath)
                         auto end   = start + vmAddr.size;
                         for (auto pos = start; pos.x < end.x; pos.x++) {
                               for (pos.y = start.y; pos.y < end.y; pos.y++) {
-                                    if (pos.x < 0 || pos.x >= width || pos.y < 0 ||
-                                        pos.y >= height)
+                                    if (pos.x < 0 || pos.x >= width || pos.y < 0 || pos.y >= height)
                                           continue;
                                     image[pos.x + pos.y * width].ink = Ink::LatchOff;
                               }
@@ -338,7 +338,9 @@ Project::readFromVCB(std::string const &filePath)
                   }
             }
 
-            // printf("Loaded image %dx%i (%i bytes)\n", width, height, dSize);
+            //printf("Loaded image %dx%i (%i bytes)\n", width, height, dSize);
+      } else {
+            printf("Probable error: no VCB logic data found.\n");
       }
 
       processDecorationData(decorationData[0], decoration[0]);

@@ -73,18 +73,19 @@ class Preprocessor
 
       class visited_IDs {
             std::array<std::unique_ptr<uint64_t[]>, 2> ptrs_;
-            std::array<std::span<uint64_t>, 2>         spans_;
+            //std::array<std::span<uint64_t>, 2>         spans_;
 
           public:
             explicit visited_IDs(size_t const canvas_size)
                 : ptrs_({std::make_unique<uint64_t[]>(canvas_size),
-                         std::make_unique<uint64_t[]>(canvas_size)}),
-                  spans_({std::span<uint64_t>(ptrs_[0].get(), canvas_size),
-                          std::span<uint64_t>(ptrs_[1].get(), canvas_size)})
+                         std::make_unique<uint64_t[]>(canvas_size)})
+                //,
+                //  spans_({std::span<uint64_t>(ptrs_[0].get(), canvas_size),
+                //          std::span<uint64_t>(ptrs_[1].get(), canvas_size)})
             {}
 
-            ND auto &normal() & { return spans_[0]; }
-            ND auto &mesh()   & { return spans_[1]; }
+            ND auto &normal() & { return ptrs_[0]; }
+            ND auto &mesh()   & { return ptrs_[1]; }
       } visited;
 
       /*--------------------------------------------------------------------------------*/
@@ -742,7 +743,12 @@ int Preprocessor::calc_index(int const x, int const y) const
 
 glm::ivec2 Preprocessor::get_pos_from_index(int const idx) const
 {
-      auto const [quot, rem] = ::div(idx, p.width);
+      //auto const [quot, rem] = ::div(idx, p.width);
+      //unsigned const quot = static_cast<unsigned>(idx) / static_cast<unsigned>(p.width);
+      //unsigned const rem  = static_cast<unsigned>(idx) % static_cast<unsigned>(p.width);
+
+      int const quot = idx / p.width;
+      int const rem  = idx % p.width;
       return {rem, quot};
 }
 
@@ -756,8 +762,8 @@ Preprocessor::push_tunnel_exit_not_found_error(ivec const neighbor,
                                            : "north";
       char *buf = p.error_messages->push_blank(128);
       // Overflow isn't possible for this size of buffer, so sprintf is fine.
-      auto const size = ::sprintf(
-          buf, R"(Error @ (%d, %d): No exit tunnel found in a search to the %s.)",
+      auto const size = ::snprintf(
+          buf, 128, "(Error @ (%d, %d): No exit tunnel found in a search to the %s.)",
           tunComp.x, tunComp.y, dir);
       util::logs(buf, size);
 }
@@ -768,8 +774,8 @@ Preprocessor::push_invalid_tunnel_entrance_error(ivec const origComp,
 {
       char *buf = p.error_messages->push_blank(128);
       // Overflow isn't possible for this size of buffer, so sprintf is fine.
-      auto const size = ::sprintf(
-            buf, "Error @ (%d, %d) & (%d, %d): Two consecutive tunnel entrances for the same ink found.",
+      auto const size = ::snprintf(
+            buf, 128, "Error @ (%d, %d) & (%d, %d): Two consecutive tunnel entrances for the same ink found.",
             origComp.x, origComp.y, tmpComp.x, tmpComp.y);
       util::logs(buf, size);
 }

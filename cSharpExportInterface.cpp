@@ -1,7 +1,7 @@
 // ReSharper disable CppTooWideScopeInitStatement
 #include "openVCB.h"
-#include <tbb/spin_mutex.h>
-#include <tbb/task.h>
+//#include <tbb/spin_mutex.h>
+//#include <tbb/task.h>
 
 #ifdef _WIN32
 # define EXPORT_API extern "C" __declspec(dllexport)
@@ -22,7 +22,7 @@ constexpr double MIN_DT    = 1.0 / 30.0;
 
 openVCB::Project *proj      = nullptr;
 std::thread      *simThread = nullptr;
-tbb::spin_mutex   simLock;
+std::mutex        simLock;
 
 float  targetTPS  = 0.0f;
 double maxTPS     = 0.0;
@@ -248,6 +248,8 @@ initVMem(char const *assembly, int const aSize, char *err, int const errSize)
 EXPORT_API void
 deleteProject()
 {
+      std::lock_guard lock(simLock);
+
       run = false;
       if (simThread) {
             simThread->join();
@@ -285,6 +287,7 @@ addInstrumentBuffer(openVCB::InkState *buf, int const bufSize, int const idx)
 EXPORT_API void
 setStateMemory(int *data, int const size) noexcept(false)
 {
+      std::lock_guard lock(simLock);
       if (proj->states_is_native) {
             memcpy(data, proj->states, sizeof(*proj->states) * size);
             delete[] proj->states;
@@ -298,6 +301,7 @@ setStateMemory(int *data, int const size) noexcept(false)
 EXPORT_API void
 setVMemMemory(int *data, int const size)
 {
+      std::lock_guard lock(simLock);
       proj->vmem     = data;
       proj->vmemSize = size;
 }
@@ -305,12 +309,14 @@ setVMemMemory(int *data, int const size)
 EXPORT_API void
 setIndicesMemory(int *data, int const size)
 {
+      std::lock_guard lock(simLock);
       memcpy(data, proj->indexImage, sizeof(*proj->indexImage) * size);
 }
 
 EXPORT_API void
 setImageMemory(int *data, int const width, int const height)
 {
+      std::lock_guard lock(simLock);
       proj->width  = width;
       proj->height = height;
       proj->image  = reinterpret_cast<openVCB::InkPixel *>(data);
@@ -395,6 +401,8 @@ bool                  inhibitStupidity        = false;
 EXPORT_API char const *const *
 openVCB_CompileAndRun(size_t *numErrors, int *stateSize)
 {
+      std::lock_guard lock(simLock);
+
       proj->preprocess();
       *numErrors = proj->error_messages->size();
 

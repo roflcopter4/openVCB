@@ -178,7 +178,7 @@ Project::assembleVmem(char *errp, size_t errSize)
             }
 
             if (*errBuf)
-                  snprintf(errp, errSize, "line %zu: %s", lineNum, errBuf);
+                  snprintf(errp, errSize, "line %u: %s", lineNum, errBuf);
 
             if (loc >= vmemSize) {
                   if (errp)

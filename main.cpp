@@ -10,10 +10,6 @@
 #define UINT64_CAST_HELPER(x) UINT64_C(x)
 #define UINT64_CAST(x)        UINT64_CAST_HELPER(x)
 
-#if __cplusplus < 202002L || _MSVC_LANG < 202002L
-# error "Wrong version clang, you moron."
-#endif
-
 namespace lazy
 {
 template <typename T> concept HasDuration = requires { typename T::duration; };
@@ -43,7 +39,7 @@ public:
 
       template <typename T>
       constexpr auto operator-(
-            tagged_time_point<T> const &other) const noexcept(arith_ && other.arith_)
+            tagged_time_point<T> const &other) const
       {
             return time_ - other.time_;
       }
@@ -73,7 +69,7 @@ fwrite_l(Elem const (&buf)[Num], FILE *dest)
 } // namespace lazy
 
 
-#define NUMTICKS   10'000'000
+#define NUMTICKS   10'000
 #define NUMTICKS_S STRINGIZE(NUMTICKS)
 
 using namespace std::literals;
@@ -87,7 +83,7 @@ main()
       using lazy::tagged_time_point, lazy::fwrite_l, lazy::dur_to_dbl;
 
       FILE *realStdout = stdout;
-      auto  proj       = std::make_unique<openVCB::Project>();
+      auto  proj       = std::make_unique<openVCB::Project>(-1, false);
       auto  times      = std::vector<tagged_time_point<clock::time_point>>();
       times.reserve(100);
 
